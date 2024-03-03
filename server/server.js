@@ -13,7 +13,7 @@ const port = 3001;
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-const allowedOrigins = ['http://localhost:3000', 'https://placementapp-123.web.app/'];
+const allowedOrigins = ['http://localhost:3000', 'https://placementapp-123.web.app'];
 app.use(cors({
     origin: allowedOrigins,
     methods: ["POST", "GET", "DELETE", "PUT", "PATCH"],
@@ -183,6 +183,35 @@ app.put('/students/:rollnumber', async (req, res) => {
         return res.status(200).json({ message: `Offer letters updated for student ${rollnumber}` });
     } catch (error) {
         console.error('Error updating offer letters:', error);
+        return res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+app.put('/students/resume/:rollnumber', async (req, res) => {
+    const rollnumber = req.params.rollnumber;
+    const { resume } = req.body;
+
+    try {
+        const student = await Student.findOne({ rollnumber });
+
+        if (!student) {
+            return res.status(404).json({ message: `Student with roll number ${rollnumber} not found` });
+
+
+        }
+
+        student.resume = resume;
+
+
+
+        
+
+        // Save the updated student document
+        await student.save();
+
+        return res.status(200).json({ message: `Resume uploaded for student ${rollnumber}` });
+    } catch (error) {
+        console.error('Error updating resume', error);
         return res.status(500).json({ error: 'Internal Server Error' });
     }
 });
